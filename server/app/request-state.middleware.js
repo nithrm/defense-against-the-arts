@@ -6,18 +6,10 @@ var passport = require('passport');
 var keys = require("../../keys.json")
 
 var User = require('../api/users/user.model');
+var bodyParser = require('body-parser');
 
-router.use(function (req, res, next) {
-  var bodyString = '';
-  req.on('data', function (chunk) {
-    bodyString += chunk;
-  });
-  req.on('end', function () {
-    bodyString = bodyString || '{}';
-    req.body = eval('(' + bodyString + ')');
-    next();
-  });
-});
+router.use(bodyParser.urlencoded({extend: ture}));
+router.use(bodyParser.json());
 
 router.use(session({
   secret: keys.rsMiddleware.secret,

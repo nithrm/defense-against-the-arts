@@ -26,7 +26,7 @@ router.get('/', function (req, res, next) {
 });
 
 router.post('/', function (req, res, next) {
-  if (!req.user.id) return 
+  // if (!req.user.id) return 
   User.findById(req.user.id)
   .then(function(user){
     console.log("USER",user)
@@ -46,7 +46,7 @@ router.post('/', function (req, res, next) {
 });
 
 router.get('/:id', function (req, res, next) {
-  if (!req.user.id) return 
+  // if (!req.user.id) return 
   User.findById(req.user.id)
   .then(function(user){
     console.log("USER",user)
@@ -76,7 +76,7 @@ router.put('/:id', function (req, res, next) {
 });
 
 router.delete('/:id', function (req, res, next) {
-  if (!req.user.id) return 
+  // if (!req.user.id) return 
   User.findById(req.user.id)
   .then(function(user){
     console.log("USER",user)

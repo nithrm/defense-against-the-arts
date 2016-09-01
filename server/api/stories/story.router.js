@@ -22,7 +22,9 @@ router.get('/', function (req, res, next) {
     attributes: {exclude: ['paragraphs']}
   })
   .then(function (stories) {
+    
     res.json(stories);
+
   })
   .catch(next);
 });
@@ -72,7 +74,7 @@ router.get('/:id', function (req, res, next) {
 });
 
 router.put('/:id', function (req, res, next) {
-  if (!req.user.id) return 
+  // if (!req.user.id) return 
   User.findById(req.user.id)
   .then(function(user){
     console.log("USER",user)
@@ -90,7 +92,7 @@ router.put('/:id', function (req, res, next) {
 });
 
 router.delete('/:id', function (req, res, next) {
-  if (!req.user.id) return 
+  // if (!req.user.id) return 
   User.findById(req.user.id)
   .then(function(user){
     console.log("USER",user)
