@@ -17,7 +17,8 @@ router.param('id', function (req, res, next, id) {
 });
 
 router.get('/', function (req, res, next) {
-  User.findAll({})
+  
+  User.findAll({attributes: {exclude:["password","isAdmin","email", "googleId","twitterId","gitHub"]}})
   .then(function (users) {
     res.json(users);
   })
@@ -25,33 +26,70 @@ router.get('/', function (req, res, next) {
 });
 
 router.post('/', function (req, res, next) {
-  User.create(req.body)
-  .then(function (user) {
-    res.status(201).json(user);
-  })
-  .catch(next);
+  if (!req.user.id) return 
+  User.findById(req.user.id)
+  .then(function(user){
+    console.log("USER",user)
+    if (!user.isAdmin){
+      console.log("NOT ADMIN")
+      return res.status(404).end();
+    } else {
+        User.create(req.body)
+        .then(function (user) {
+          user.dataValues.password = null;
+          user.dataValues.email = null;
+          res.status(201).json(user);
+        })
+        .catch(next);
+     }
+    })
 });
 
 router.get('/:id', function (req, res, next) {
-  req.requestedUser.reload({include: [Story]})
-  .then(function (requestedUser) {
-    res.json(requestedUser);
+  if (!req.user.id) return 
+  User.findById(req.user.id)
+  .then(function(user){
+    console.log("USER",user)
+    if (!user.isAdmin){
+      console.log("NOT ADMIN")
+      return res.status(404).end();
+    } else {
+      req.requestedUser.reload({include: [Story]})
+      .then(function (requestedUser) {
+        requestedUser.dataValues.password = null;
+        requestedUser.dataValues.email = null;
+        res.json(requestedUser);
+      })
+      .catch(next);
+    }
   })
-  .catch(next);
 });
 
 router.put('/:id', function (req, res, next) {
   req.requestedUser.update(req.body)
   .then(function (user) {
+    user.dataValues.password = null;
+    user.dataValues.email = null;
     res.json(user);
   })
   .catch(next);
 });
 
 router.delete('/:id', function (req, res, next) {
-  req.requestedUser.destroy()
-  .then(function () {
-    res.status(204).end();
+  if (!req.user.id) return 
+  User.findById(req.user.id)
+  .then(function(user){
+    console.log("USER",user)
+    if (!user.isAdmin){
+      console.log("NOT ADMIN")
+      return res.status(404).end();
+    } else {
+      req.requestedUser.destroy()
+      .then(function () {
+        res.status(204).end();
+      })
+      .catch(next);
+    }
   })
   .catch(next);
 });

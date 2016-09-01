@@ -29,37 +29,82 @@ router.get('/', function (req, res, next) {
 
 router.post('/', function (req, res, next) {
   Story.create(req.body)
-  .then(function (story) {
+  .then(function (story) {  
     return story.reload({include: [{model: User, as: 'author'}]});
   })
   .then(function (includingAuthor) {
+    includingAuthor.dataValues.author = {};
     res.status(201).json(includingAuthor);
   })
   .catch(next);
 });
 
 router.get('/:id', function (req, res, next) {
-  req.story.reload({include: [{model: User, as: 'author'}]})
-  .then(function (story) {
-    res.json(story);
-  })
-  .catch(next);
+  // if (!req.user.id) return 
+  // User.findById(req.user.id)
+  // .then(function(user){
+  //   console.log("USER",user)
+    // if (!user.isAdmin){
+    //   console.log("NOT ADMIN")
+    //   // return res.stats(404).end();
+    // } else {
+      req.story.reload
+        ({
+          include: [{model: User, as: 'author'}],
+  
+        }, 
+        {
+          attributes: 
+            {
+              exclude: ["password", "isAdmin", "email"]
+            }
+        })
+      .then(function (story) {
+        console.log("STORY", story)
+        story.dataValues.author = {};
+        console.log("STORY2", story)
+        res.json(story);
+
+      })
+      .catch(next);
+    // }
+  // });
 });
 
 router.put('/:id', function (req, res, next) {
-  req.story.update(req.body)
-  .then(function (story) {
-    res.json(story);
-  })
-  .catch(next);
+  if (!req.user.id) return 
+  User.findById(req.user.id)
+  .then(function(user){
+    console.log("USER",user)
+    if (!user.isAdmin){
+      console.log("NOT ADMIN")
+      return res.status(404).end();
+    } else {
+      req.story.update(req.body)
+      .then(function (story) {
+        res.json(story);
+      })
+      .catch(next);
+    }
+  });
 });
 
 router.delete('/:id', function (req, res, next) {
-  req.story.destroy()
-  .then(function () {
-    res.status(204).end();
-  })
-  .catch(next);
+  if (!req.user.id) return 
+  User.findById(req.user.id)
+  .then(function(user){
+    console.log("USER",user)
+    if (!user.isAdmin){
+      console.log("NOT ADMIN")
+      return res.status(404).end();
+    } else {
+        req.story.destroy()
+        .then(function () {
+          res.status(204).end();
+        })
+        .catch(next);
+      }
+    })
 });
 
 module.exports = router;
